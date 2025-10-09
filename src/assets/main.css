@@ -1,0 +1,47 @@
+/* Google Fonts & Tailwind Imports */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
+/* Base Styles */
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: theme('colors.gray.50');
+    color: theme('colors.gray.900');
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Utilities */
+@layer utilities {
+  .card {
+    @apply relative bg-white dark:bg-navy-800 rounded-xl shadow-md p-6 transition-all duration-300 overflow-hidden;
+  }
+  .card::before {
+    content: '';
+    @apply absolute inset-0 rounded-xl border-2 border-transparent pointer-events-none transition-all duration-300;
+  }
+  .card:hover::before {
+    border-image-slice: 1;
+    border-image-source: linear-gradient(to right, theme('colors.blue.400'), theme('colors.indigo.500'));
+  }
+  .card:hover {
+    @apply shadow-lg;
+  }
+
+  .btn-3d {
+    @apply relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-pink-500 to-blue-500 text-white font-semibold rounded-full shadow-md hover:from-pink-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300;
+  }
+  .btn-3d-border {
+    @apply border-2 border-transparent bg-clip-padding;
+  }
+  .btn-3d:hover {
+    @apply shadow-lg;
+  }
+  .btn-3d:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
