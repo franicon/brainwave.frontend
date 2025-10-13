@@ -23,7 +23,7 @@
         @click="isOpen = false"
         class="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white z-50"
       >
-        <font-awesome-icon :icon="['fas', 'times']" class="w-4 h-4" />
+        <XMarkIcon class="w-4 h-4" />
       </button>
 
       <div>
@@ -38,8 +38,12 @@
             @click="toggleCollapse"
             class="absolute top-1/2 right-4 transform -translate-y-1/2 p-1.5 hover:bg-navy-600 rounded transition-colors"
           >
-            <font-awesome-icon
-              :icon="isCollapsed ? ['fas', 'chevron-right'] : ['fas', 'chevron-left']"
+            <ChevronRightIcon
+              v-if="isCollapsed"
+              class="w-4 h-4 text-white"
+            />
+            <ChevronLeftIcon
+              v-else
               class="w-4 h-4 text-white"
             />
           </button>
@@ -47,7 +51,7 @@
 
         <!-- Menu -->
         <nav :class="[isCollapsed && !isMobile ? 'p-3 space-y-2' : 'p-6 space-y-2']">
-          <ul>
+          <ul :key="`menu-${isCollapsed ? 'collapsed' : 'expanded'}`">
             <li
               v-for="(item) in userMenu"
               :key="item.path"
@@ -59,9 +63,9 @@
                 :class="[isCollapsed && !isMobile ? 'justify-center px-0' : '']"
                 @click="handleMenuClick"
               >
-                <font-awesome-icon
-                  :icon="item.icon"
-                  class="w-5 h-5 text-white mr-4 transition-colors"
+                <component
+                  :is="item.icon"
+                  class="w-5 h-5 text-white mr-4 transition-colors flex-shrink-0"
                   :class="[{ 'mr-0': isCollapsed && !isMobile }]"
                 />
                 <span v-if="!isCollapsed || isMobile">{{ item.label }}</span>
@@ -80,9 +84,8 @@
           class="flex items-center py-3 w-full text-white font-semibold text-lg hover:bg-navy-600 rounded-lg transition-all duration-200 hover:shadow-md group"
           :class="[isCollapsed && !isMobile ? 'justify-center' : '']"
         >
-          <font-awesome-icon
-            :icon="['fas', 'right-from-bracket']"
-            class="w-5 h-5 group-hover:text-primary-300 transition-colors"
+          <ArrowRightOnRectangleIcon
+            class="w-5 h-5 group-hover:text-primary-300 transition-colors flex-shrink-0"
             :class="[{ 'mr-4': !isCollapsed || isMobile }]"
           />
           <span v-if="!isCollapsed || isMobile">Logout</span>
@@ -104,7 +107,7 @@
             @click="isOpen = !isOpen"
             class="lg:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 rounded-lg transition-colors"
           >
-            <font-awesome-icon :icon="['fas', 'bars']" class="w-6 h-6" />
+            <Bars3Icon class="w-6 h-6" />
           </button>
 
           <slot name="header-title">
@@ -116,19 +119,26 @@
           <button
             class="p-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 rounded-lg transition-colors"
           >
-            <font-awesome-icon icon="bell" class="w-5 h-5" />
+            <BellIcon class="w-5 h-5" />
           </button>
           <button
             @click="toggleDark"
             class="p-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 rounded-lg transition-colors"
           >
-            <font-awesome-icon :icon="['fas', isDark ? 'sun' : 'moon']" class="w-5 h-5" />
+            <SunIcon
+              v-if="isDark"
+              class="w-5 h-5"
+            />
+            <MoonIcon
+              v-else
+              class="w-5 h-5"
+            />
           </button>
           <router-link
             to="/settings"
             class="p-2 text-gray-600 dark:text-gray-300 hover:text-primary-500 rounded-lg transition-colors"
           >
-            <font-awesome-icon icon="cog" class="w-5 h-5" />
+            <CogIcon class="w-5 h-5" />
           </router-link>
         </div>
       </header>
@@ -170,6 +180,21 @@ import { ref } from 'vue'
 import { useDarkMode } from '@/composables/useDarkMode'
 import { useCollapse } from '@/composables/useCollapse'
 import { useAuthStore } from '@/stores/auth'
+import {
+  ChartBarIcon,
+  BookOpenIcon,
+  Bars3Icon,
+  XMarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MoonIcon,
+  SunIcon,
+  BellIcon,
+  CogIcon,
+  ArrowRightOnRectangleIcon,
+} from '@/plugins/heroicons'
+import { CreditCardIcon } from '@heroicons/vue/24/outline'
+import { BanknotesIcon } from '@heroicons/vue/24/outline'
 
 const { isDark, toggleDark } = useDarkMode()
 const { isCollapsed, isMobile, toggleCollapse } = useCollapse()
@@ -179,10 +204,10 @@ const isOpen = ref(false)
 const modalOpen = ref(false)
 
 const userMenu = [
-  { path: '/dashboard', label: 'Dashboard', icon: ['fas', 'gauge'] },
-  { path: '/plans', label: 'Plans', icon: ['fas', 'credit-card'] },
-  { path: '/courses', label: 'Courses', icon: ['fas', 'book'] },
-  { path: '/wallet', label: 'Wallet', icon: ['fas', 'wallet'] },
+  { path: '/dashboard', label: 'Dashboard', icon: ChartBarIcon },
+  { path: '/plans', label: 'Plans', icon: CreditCardIcon },
+  { path: '/courses', label: 'Courses', icon: BookOpenIcon },
+  { path: '/wallet', label: 'Wallet', icon: BanknotesIcon },
 ]
 
 const openLogoutConfirm = () => {

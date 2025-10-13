@@ -28,6 +28,7 @@ import {
   faChevronRight,
   faSpinner,
   faBars,
+  faTachometerAlt,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -58,7 +59,8 @@ library.add(
   faChevronLeft,
   faChevronRight,
   faSpinner,
-  faBars 
+  faBars,
+  faTachometerAlt
 )
 
 export function configureIcons(app: App<Element>) {

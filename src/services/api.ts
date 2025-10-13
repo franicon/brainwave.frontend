@@ -2,8 +2,8 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
 const apiClient = axios.create({
-  baseURL: 'https://879e381a8b20.ngrok-free.app/api',
-//   baseURL: 'http://localhost:8000/api',
+  //baseURL: 'https://879e381a8b20.ngrok-free.app/api',
+  baseURL: 'http://localhost:8000/api',
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
