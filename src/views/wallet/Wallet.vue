@@ -1,130 +1,125 @@
 <template>
-  <DefaultLayoutComponent>
-    <template #header-title>
-      <h1 class="text-2xl font-bold text-neutral-900 dark:text-white font-sans">Wallet</h1>
-    </template>
+  <div class="space-y-8 max-w-7xl mx-auto py-8">
+    <!-- Wallet Title -->
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-white font-sans">Wallet</h1>
 
-    <div class="space-y-8 max-w-7xl mx-auto py-8">
-
-      <!-- Wallet Card -->
-      <div class="p-6 rounded-3xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-lg font-semibold opacity-90">Your Balance</h2>
-          <span class="text-sm opacity-80">{{ new Date().toLocaleDateString() }}</span>
-        </div>
-        <div class="text-4xl font-bold tracking-wide">
-          PKR {{ formattedBalance }}
-        </div>
-        <div class="flex justify-between text-sm opacity-80 mt-4">
-          <span class="italic">Active</span>
-        </div>
+    <!-- Wallet Card -->
+    <div class="p-6 rounded-3xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-lg font-semibold opacity-90">Your Balance</h2>
+        <span class="text-sm opacity-80">{{ new Date().toLocaleDateString() }}</span>
       </div>
-
-      <!-- Top Up Form with Stripe -->
-      <div class="p-6 rounded-3xl bg-white/80 dark:bg-navy-800/80 backdrop-blur-md shadow-md">
-        <form @submit.prevent="handleTopUp" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Top Up Amount (USD)
-            </label>
-            <input
-              v-model.number="amount"
-              type="number"
-              min="1"
-              step="0.01"
-              placeholder="Enter amount in USD"
-              class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
-              required
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Card Information
-            </label>
-            <div id="card-element" class="p-3 border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700"></div>
-          </div>
-          <div id="card-errors" class="text-red-500 text-sm"></div>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="btn-3d btn-3d-border w-full rounded-full"
-          >
-            {{ loading ? 'Processing...' : 'Top Up Now' }}
-          </button>
-        </form>
+      <div class="text-4xl font-bold tracking-wide">
+        PKR {{ formattedBalance }}
       </div>
-
-      <!-- Transaction History -->
-      <div class="p-6 rounded-3xl bg-white/80 dark:bg-navy-800/80 backdrop-blur-md shadow-md">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Transaction History</h2>
-
-        <div v-if="paginatedItems.length > 0" class="space-y-4">
-          <div
-            v-for="transaction in paginatedItems"
-            :key="transaction.id"
-            class="p-4 rounded-xl shadow-sm border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-700"
-          >
-            <div class="flex justify-between items-center">
-              <span
-                class="font-medium"
-                :class="transaction.type === 'top-up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
-              >
-                {{ transaction.type === 'top-up' ? 'Top-Up' : 'Deduction' }}
-              </span>
-              <span class="font-semibold">
-                PKR {{ transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-              </span>
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {{ new Date(transaction.created_at).toLocaleDateString() }}
-              {{ new Date(transaction.created_at).toLocaleTimeString() }}
-            </div>
-            <div v-if="transaction.description" class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {{ transaction.description }}
-            </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Balance After: PKR {{ transaction.balance_after.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="text-center py-6 text-gray-600 dark:text-gray-400">
-          No transactions yet.
-        </div>
-
-        <!-- Pagination Controls -->
-        <div v-if="totalPages > 1" class="flex justify-center items-center mt-6 space-x-2">
-          <button
-            @click="prev"
-            :disabled="currentPage === 1"
-            class="px-3 py-1 rounded-full bg-gray-200 dark:bg-navy-600 disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <span class="px-3 py-1 font-medium">
-            Page {{ currentPage }} of {{ totalPages }}
-          </span>
-          <button
-            @click="next"
-            :disabled="currentPage === totalPages"
-            class="px-3 py-1 rounded-full bg-gray-200 dark:bg-navy-600 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+      <div class="flex justify-between text-sm opacity-80 mt-4">
+        <span class="italic">Active</span>
       </div>
     </div>
-  </DefaultLayoutComponent>
+
+    <!-- Top Up Form with Stripe -->
+    <div class="p-6 rounded-3xl bg-white/80 dark:bg-navy-800/80 backdrop-blur-md shadow-md">
+      <form @submit.prevent="handleTopUp" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Top Up Amount (USD)
+          </label>
+          <input
+            v-model.number="amount"
+            type="number"
+            min="1"
+            step="0.01"
+            placeholder="Enter amount in USD"
+            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
+            required
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Card Information
+          </label>
+          <div id="card-element" class="p-3 border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700"></div>
+        </div>
+        <div id="card-errors" class="text-red-500 text-sm"></div>
+        <button
+          type="submit"
+          :disabled="loading"
+          class="btn-3d btn-3d-border w-full rounded-full"
+        >
+          {{ loading ? 'Processing...' : 'Top Up Now' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="p-6 rounded-3xl bg-white/80 dark:bg-navy-800/80 backdrop-blur-md shadow-md">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Transaction History</h2>
+
+      <div v-if="paginatedItems.length > 0" class="space-y-4">
+        <div
+          v-for="transaction in paginatedItems"
+          :key="transaction.id"
+          class="p-4 rounded-xl shadow-sm border border-gray-200 dark:border-navy-600 bg-gray-50 dark:bg-navy-700"
+        >
+          <div class="flex justify-between items-center">
+            <span
+              class="font-medium"
+              :class="transaction.type === 'top-up' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
+            >
+              {{ transaction.type === 'top-up' ? 'Top-Up' : 'Deduction' }}
+            </span>
+            <span class="font-semibold">
+              PKR {{ transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+            </span>
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {{ new Date(transaction.created_at).toLocaleDateString() }}
+            {{ new Date(transaction.created_at).toLocaleTimeString() }}
+          </div>
+          <div v-if="transaction.description" class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            {{ transaction.description }}
+          </div>
+          <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Balance After: PKR {{ transaction.balance_after.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="text-center py-6 text-gray-600 dark:text-gray-400">
+        No transactions yet.
+      </div>
+
+      <!-- Pagination Controls -->
+      <div v-if="totalPages > 1" class="flex justify-center items-center mt-6 space-x-2">
+        <button
+          @click="prev"
+          :disabled="currentPage === 1"
+          class="px-3 py-1 rounded-full bg-gray-200 dark:bg-navy-600 disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <span class="px-3 py-1 font-medium">
+          Page {{ currentPage }} of {{ totalPages }}
+        </span>
+        <button
+          @click="next"
+          :disabled="currentPage === totalPages"
+          class="px-3 py-1 rounded-full bg-gray-200 dark:bg-navy-600 disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, type Component } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { useWalletStore } from '@/stores/wallet';
 import { usePagination } from '@/composables/usePagination';
-import DefaultLayout from '@/layouts/DefaultLayout.vue';
-import type { StripeCardElement } from '@stripe/stripe-js';
 import { useToast } from 'vue-toastification';
+import type { StripeCardElement } from '@stripe/stripe-js';
 
 const toast = useToast();
 const userStore = useUserStore();
@@ -194,6 +189,4 @@ onMounted(async () => {
     //toast.error('Failed to initialize wallet.');
   }
 });
-
-const DefaultLayoutComponent = DefaultLayout as unknown as Component & { $slots: { 'header-title': () => any; default: () => any } };
 </script>

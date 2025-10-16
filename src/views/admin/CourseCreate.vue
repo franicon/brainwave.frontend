@@ -1,120 +1,246 @@
-<!-- src/views/admin/CourseCreate.vue -->
+
 <template>
-  <AdminLayout>
-    <div class="max-w-2xl mx-auto py-8 px-4">
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-neutral-900 dark:text-white font-heading">Create New Course</h1>
-        <router-link to="/admin/courses" class="btn-secondary flex items-center">
-          <font-awesome-icon icon="arrow-left" class="mr-2" /> Back to Courses
+  <div class="space-y-8 max-w-2xl mx-auto py-8">
+    <!-- Header -->
+    <div class="p-6 rounded-3xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg">
+      <div class="flex justify-between items-center">
+        <h1 class="text-2xl font-bold">Create New Course</h1>
+        <router-link
+          to="/admin/courses"
+          class="btn-3d btn-3d-border rounded-full px-6 py-3 text-white/80 hover:text-white"
+        >
+          Back to Courses
         </router-link>
       </div>
-      <form @submit.prevent="createCourse" class="card space-y-6" enctype="multipart/form-data">
+    </div>
+
+    <!-- Create Form -->
+    <div class="p-6 rounded-3xl bg-white/80 dark:bg-navy-800/80 backdrop-blur-md shadow-md">
+      <form @submit.prevent="handleCreate" class="space-y-6">
+        <!-- Title -->
         <div>
-          <input v-model="form.title" type="text" placeholder="Course Title" required class="input-field" />
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
+          <input
+            v-model="form.title"
+            type="text"
+            required
+            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
+          />
         </div>
+
+        <!-- Description -->
         <div>
-          <textarea v-model="form.description" placeholder="Course Description" required rows="4" class="input-field resize-none"></textarea>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+          <textarea
+            v-model="form.description"
+            required
+            rows="4"
+            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
+          ></textarea>
         </div>
+
+        <!-- Price -->
         <div>
-          <input v-model="form.price" type="number" placeholder="Price (PKR)" min="0" step="0.01" required class="input-field" />
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price ($)</label>
+          <input
+            v-model.number="form.price"
+            type="number"
+            min="0"
+            step="0.01"
+            required
+            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
+          />
         </div>
+
+        <!-- Video Toggle -->
         <div>
-          <input v-model="form.video_url" type="url" placeholder="External Video URL (YouTube, Vimeo, AWS S3, etc.)" class="input-field" />
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Video Source</label>
+          <div class="flex space-x-2 mb-3">
+            <button
+              type="button"
+              @click="setVideoSource('url')"
+              :class="videoSource === 'url' ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-navy-600 text-gray-700 dark:text-gray-300'"
+              class="px-4 py-2 rounded-full font-medium transition"
+            >
+              Video URL
+            </button>
+            <button
+              type="button"
+              @click="setVideoSource('upload')"
+              :class="videoSource === 'upload' ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-navy-600 text-gray-700 dark:text-gray-300'"
+              class="px-4 py-2 rounded-full font-medium transition"
+            >
+              Upload Video
+            </button>
+          </div>
+
+          <!-- Video URL -->
+          <div v-if="videoSource === 'url'">
+            <input
+              v-model="form.video_url"
+              type="url"
+              placeholder="Enter video URL"
+              class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
+            />
+          </div>
+
+          <!-- Video Upload -->
+          <div v-if="videoSource === 'upload'">
+            <input
+              type="file"
+              accept="video/mp4,video/avi,video/mov,video/wmv"
+              @change="handleVideoUpload"
+              class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+            />
+            <p v-if="form.video_path" class="text-sm text-gray-500 mt-2 truncate">
+              Selected: {{ form.video_path.name }}
+            </p>
+          </div>
         </div>
+
+        <!-- Thumbnail -->
         <div>
-          <input type="file" @change="handleVideoUpload" accept="video/*" class="input-field" />
-          <p v-if="form.video_path" class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Uploaded: {{ form.video_path.split('/').pop() }}</p>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Thumbnail Image (optional)</label>
+          <input
+            ref="thumbnailInput"
+            type="file"
+            accept="image/*"
+            @change="handleThumbnailChange"
+            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+          />
+          <div v-if="form.thumbnailPreview" class="mt-2">
+            <img :src="form.thumbnailPreview" alt="Preview" class="w-32 h-20 object-cover rounded-lg" />
+          </div>
         </div>
-        <div>
-          <input type="file" @change="handleThumbnailUpload" accept="image/*" class="input-field" />
-          <p v-if="form.thumbnail" class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Uploaded: {{ form.thumbnail.split('/').pop() }}</p>
+
+        <!-- Active -->
+        <div class="flex items-center">
+          <input
+            id="is_active"
+            v-model="form.is_active"
+            type="checkbox"
+            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-navy-600 rounded"
+          />
+          <label for="is_active" class="ml-2 block text-sm text-gray-900 dark:text-white">Is Active</label>
         </div>
-        <div class="flex space-x-4">
-          <button type="submit" :disabled="loading" class="btn-primary px-6 py-3 disabled:opacity-50">
-            <font-awesome-icon icon="plus" class="mr-2" /> Create Course
+
+        <!-- Errors -->
+        <div v-if="errors.length > 0" class="space-y-1">
+          <p v-for="error in errors" :key="error" class="text-red-600 text-sm">{{ error }}</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex justify-end space-x-3 pt-4">
+          <router-link
+            to="/admin/courses"
+            class="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-navy-600 hover:bg-gray-300 dark:hover:bg-navy-500 rounded-2xl transition"
+          >
+            Cancel
+          </router-link>
+          <button type="submit" :disabled="loading" class="btn-3d btn-3d-border rounded-full px-6 py-3">
+            {{ loading ? 'Creating...' : 'Create Course' }}
           </button>
-          <button type="button" @click="resetForm" class="btn-secondary px-6 py-3">Reset</button>
         </div>
       </form>
     </div>
-  </AdminLayout>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import api from '@/services/api';
+import { ref, reactive, onUnmounted } from 'vue'
+import { useToast } from 'vue-toastification'
+import { useRouter } from 'vue-router'
+import { useAdminCoursesStore } from '@/stores/adminCourses'
 
-const router = useRouter();
-const authStore = useAuthStore();
-const form = ref({
+const adminCoursesStore = useAdminCoursesStore()
+const toast = useToast()
+const router = useRouter()
+
+const loading = ref(false)
+const errors = ref<string[]>([])
+const thumbnailInput = ref<HTMLInputElement | null>(null)
+let previewUrl = ref<string | null>(null)
+const videoSource = ref<'url' | 'upload'>('url')
+
+const form = reactive({
   title: '',
   description: '',
   price: 0,
   video_url: '',
-  video_path: '',
-  thumbnail: '',
-  is_active: true,
-});
-const loading = ref<boolean>(false);
+  video_path: null as File | null,
+  thumbnail: null as File | null,
+  thumbnailPreview: '',
+  is_active: true
+})
+
+const setVideoSource = (source: 'url' | 'upload') => {
+  videoSource.value = source
+  if (source === 'url') {
+    form.video_path = null
+  } else {
+    form.video_url = ''
+  }
+}
+
+const handleThumbnailChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  if (target.files && target.files[0]) {
+    const file = target.files[0]
+    if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+    previewUrl.value = URL.createObjectURL(file)
+    form.thumbnail = file
+    form.thumbnailPreview = previewUrl.value
+  }
+}
 
 const handleVideoUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
+  const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
-    // For preview or direct upload, but since FormData in submit, just set for display
-    // Actual upload happens in submit
+    form.video_path = target.files[0]
+    form.video_url = ''
   }
-};
+}
 
-const handleThumbnailUpload = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (target.files && target.files[0]) {
-    // Similar
+const handleCreate = async () => {
+  // Client-side validation
+  if (!form.title?.trim() || !form.description?.trim() || !form.price || form.price <= 0) {
+    errors.value = ['Title, description, and a valid price are required']
+    return
   }
-};
 
-const createCourse = async () => {
-  if (!authStore.isAdmin) {
-    router.push('/admin/dashboard');
-    return;
-  }
   try {
-    loading.value = true;
-    const formData = new FormData();
-    formData.append('title', form.value.title);
-    formData.append('description', form.value.description);
-    formData.append('price', form.value.price.toString());
-    if (form.value.video_url) formData.append('video_url', form.value.video_url);
-    if (form.value.video_path) formData.append('video_path', form.value.video_path); 
-    
-    const videoFileInput = document.querySelector('input[type="file"][accept="video/*"]') as HTMLInputElement;
-    const thumbnailFileInput = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement;
-    if (videoFileInput?.files?.[0]) {
-      formData.append('video', videoFileInput.files[0]);
-    }
-    if (thumbnailFileInput?.files?.[0]) {
-      formData.append('thumbnail', thumbnailFileInput.files[0]);
-    }
-    formData.append('is_active', form.value.is_active.toString());
+    loading.value = true
+    errors.value = []
 
-    await api.post('/courses', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    router.push('/admin/courses');
-    resetForm();
+    const formData = new FormData()
+    formData.append('title', form.title)
+    formData.append('description', form.description)
+    formData.append('price', form.price.toString())
+    formData.append('is_active', form.is_active ? '1' : '0')
+
+    if (videoSource.value === 'url' && form.video_url?.trim()) {
+      formData.append('video_url', form.video_url)
+    }
+    if (videoSource.value === 'upload' && form.video_path instanceof File) {
+      formData.append('video_path', form.video_path)
+    }
+    if (form.thumbnail instanceof File) {
+      formData.append('thumbnail', form.thumbnail)
+    }
+
+    await adminCoursesStore.createCourse(form)
+    toast.success('Course created successfully')
+    router.push('/admin/courses')
   } catch (error: any) {
-    console.error('Course creation failed:', error);
+    const message = error.response?.data?.message || 'Failed to create course'
+    errors.value = message.includes(';') ? message.split('; ').filter((m: string) => m) : [message]
+    toast.error('Failed to create course')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-const resetForm = () => {
-  form.value = { title: '', description: '', price: 0, video_url: '', video_path: '', thumbnail: '', is_active: true };
-  // Reset file inputs
-  const fileInputs = document.querySelectorAll('input[type="file"]');
-  fileInputs.forEach(input => (input as HTMLInputElement).value = '');
-};
+onUnmounted(() => {
+  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
+})
 </script>
