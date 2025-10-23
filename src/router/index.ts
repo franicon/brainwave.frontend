@@ -24,11 +24,11 @@ const routes = [
   { path: '/wallet', component: () => import('../views/wallet/Wallet.vue'), meta: { requiresAuth: true, userOnly: true } },
   { path: '/settings', component: () => import('../views/Settings.vue'), meta: { requiresAuth: true, userOnly: true } },
   { path: '/admin/courses/create', component: () => import('../views/admin/CourseCreate.vue'), meta: { requiresAuth: true, adminOnly: true } },
-  // Placeholder admin routes
   { path: '/admin/users', component: () => import('../views/admin/Users.vue'), meta: { requiresAuth: true, adminOnly: true } },
   { path: '/admin/courses', component: () => import('../views/admin/Courses.vue'), meta: { requiresAuth: true, adminOnly: true } },
   { path: '/admin/plans', component: () => import('../views/admin/Plans.vue'), meta: { requiresAuth: true, adminOnly: true } },
-  // Catch-all 404
+  { path: '/admin/blogs', component: () => import('../views/admin/Blogs.vue'), meta: { requiresAuth: true, adminOnly: true } },
+  { path: '/admin/settings', component: () => import('../views/admin/AdminSettings.vue'), meta: { requiresAuth: true, adminOnly: true } },
   { path: '/:pathMatch(.*)*', redirect: '/dashboard' },
 ];
 
@@ -44,7 +44,6 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // Admin paths → admin-login; others → login
     next(to.path.startsWith('/admin') ? '/admin-login' : '/login');
     return;
   }

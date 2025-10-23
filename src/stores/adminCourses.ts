@@ -1,14 +1,12 @@
-// src\stores\adminCourses.ts
 import { defineStore } from 'pinia'
 import api from '@/services/api'
 import { useAdminStore } from './admin'
 
-// Base course interface (from API)
+
 export interface AdminCourse {
   id: number
   title: string
   description: string
-  price: number
   video_url?: string
   video_path?: string
   thumbnail?: string
@@ -17,11 +15,10 @@ export interface AdminCourse {
   updated_at: string
 }
 
-// Used when submitting form data (supports File uploads)
-export type AdminCourseForm = Omit<Partial<AdminCourse>, 'thumbnail' | 'price' | 'video_path'> & {
+
+export type AdminCourseForm = Omit<Partial<AdminCourse>, 'thumbnail' | 'video_path'> & {
   thumbnail?: File | string | null
   video_path?: File | string | null
-  price?: number | string
   thumbnailPreview?: string
 }
 
@@ -101,9 +98,7 @@ export const useAdminCoursesStore = defineStore('adminCourses', {
           if ((key === 'thumbnail' || key === 'video_path') && value instanceof File) {
             formData.append(key, value)
           } else if (value !== undefined && value !== null && key !== 'thumbnailPreview') {
-            let val: any = value
-            if (key === 'price') val = parseFloat(val).toFixed(2)
-            if (key === 'is_active') val = (val as boolean) ? '1' : '0'
+            const val = key === 'is_active' ? ((value as boolean) ? '1' : '0') : value
             formData.append(key, String(val))
           }
         })
@@ -130,9 +125,7 @@ export const useAdminCoursesStore = defineStore('adminCourses', {
           if ((key === 'thumbnail' || key === 'video_path') && value instanceof File) {
             formData.append(key, value)
           } else if (value !== undefined && value !== null && key !== 'thumbnailPreview') {
-            let val: any = value
-            if (key === 'price') val = parseFloat(val).toFixed(2)
-            if (key === 'is_active') val = (val as boolean) ? '1' : '0'
+            const val = key === 'is_active' ? ((value as boolean) ? '1' : '0') : value
             formData.append(key, String(val))
           }
         })

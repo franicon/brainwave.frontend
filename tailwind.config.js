@@ -6,37 +6,45 @@ export default {
     extend: {
       colors: {
         primary: {
-          300: '#A78BFA',
-          400: '#8B5CF6',
-          500: '#7C3AED',
-          600: '#6D28D9',
-          900: '#1E1B4B',
+          50: '#E6F0FA',
+          100: '#CCE1F4',
+          400: '#4D94D9',
+          500: '#0052CC',
+          600: '#0047B3',
+          700: '#003D99',
+          900: '#002266',
         },
-        navy: {
-          600: '#1F2937',
-          700: '#111827',
-          800: '#0F172A',
-          900: '#030712',
+        neutral: {
+          50: '#F7FAFC',
+          100: '#EDF2F7',
+          200: '#E2E8F0',
+          400: '#A0AEC0',
+          600: '#4A5568',
+          700: '#2D3748',
+          800: '#1A202C',
+          900: '#171923',
         },
-        gray: {
-          50: '#F9FAFB',
-          900: '#111827',
-        },
-        blue: {
-          400: '#60A5FA',
-        },
-        indigo: {
-          500: '#6366F1',
+        accent: {
+          500: '#F5A623',
+          600: '#D49520',
         },
       },
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
+        sans: ['Roboto', 'sans-serif'],
       },
       borderRadius: {
-        xl: '0.75rem',
+        lg: '0.5rem',
+        '2xl': '1rem',
+        '3xl': '1.5rem',
       },
-      ringOpacity: {
-        50: '0.5',
+      boxShadow: {
+        sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        DEFAULT: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      },
+      spacing: {
+        18: '4.5rem',
+        22: '5.5rem',
       },
     },
   },

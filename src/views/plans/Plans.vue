@@ -1,10 +1,10 @@
 <template>
-  <div class="space-y-8 max-w-7xl mx-auto py-8">
+  <div class="space-y-8">
     <!-- Login Prompt -->
-    <div v-if="!authStore.isAuthenticated" class="card p-6 rounded-3xl text-center max-w-md mx-auto">
-      <p class="text-neutral-600 dark:text-neutral-400 mb-6 text-lg">Please login to view and purchase plans.</p>
-      <router-link to="/login" class="btn-3d btn-3d-border w-full rounded-full">
-        <font-awesome-icon :icon="['fas', 'right-from-bracket']" class="mr-2" /> Sign In
+    <div v-if="!authStore.isAuthenticated" class="card text-center max-w-md mx-auto">
+      <p class="text-neutral-600 dark:text-neutral-400 mb-6 text-base">Please login to view and purchase plans.</p>
+      <router-link to="/login" class="btn-3d btn-3d-border w-full">
+        <font-awesome-icon :icon="['fas', 'right-from-bracket']" class="mr-2 w-4 h-4" /> Sign In
       </router-link>
     </div>
 
@@ -13,21 +13,21 @@
       <div
         v-for="plan in displayPlans"
         :key="plan.id"
-        class="card p-6 rounded-3xl bg-white/80 dark:bg-navy-800/80 backdrop-blur-md relative"
+        class="card backdrop-blur relative"
       >
         <!-- Current Plan Badge -->
         <div v-if="plan.id === activePlan?.id" class="absolute top-3 right-3 bg-green-100 dark:bg-green-900/20 px-3 py-1 rounded-full text-xs font-medium text-green-700 dark:text-green-300">
           Current Plan
         </div>
 
-        <h3 class="text-xl font-semibold mb-3 text-neutral-900 dark:text-white font-sans">{{ plan.name }}</h3>
-        <p class="text-3xl font-bold text-primary-500 mb-2 font-sans">
+        <h3 class="text-xl font-semibold mb-3 text-neutral-900 dark:text-white">{{ plan.name }}</h3>
+        <p class="text-3xl font-bold text-primary-600 mb-2">
           {{ plan.discounted_price ? `PKR ${plan.discounted_price}` : `PKR ${plan.price}` }}
         </p>
         <p v-if="plan.discounted_price" class="text-sm text-neutral-500 line-through mb-6">PKR {{ plan.price }}</p>
 
         <!-- Features -->
-        <ul class="space-y-3 mb-6 text-neutral-600 dark:text-neutral-400">
+        <ul class="space-y-3 mb-6 text-neutral-600 dark:text-neutral-400 text-base">
           <li
             v-for="(feature, index) in plan.features"
             :key="feature"
@@ -39,7 +39,7 @@
           </li>
           <li
             v-if="plan.features.length > 4 && !expandedFeatures[plan.id]"
-            class="text-sm text-blue-500 cursor-pointer"
+            class="text-sm text-primary-600 cursor-pointer hover:text-primary-700"
             @click="expandedFeatures[plan.id] = true"
           >
             More Features
@@ -50,7 +50,7 @@
         <button
           @click="purchasePlan(plan.id)"
           :disabled="plan.id === activePlan?.id || loading"
-          class="btn-3d btn-3d-border w-full rounded-full transition-all duration-300"
+          class="btn-3d btn-3d-border w-full transition-all duration-300"
           :class="plan.id === activePlan?.id ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-500 cursor-not-allowed' : ''"
         >
           {{ plan.id === activePlan?.id
@@ -63,7 +63,7 @@
 
     <!-- Show All Plans Button -->
     <div v-if="plans.length > 4 && !showAllPlans" class="text-center mt-4">
-      <button @click="showAllPlans = true" class="text-blue-500 font-medium hover:underline">
+      <button @click="showAllPlans = true" class="text-primary-600 font-medium hover:text-primary-700 text-base">
         Show All Plans
       </button>
     </div>

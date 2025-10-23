@@ -21,6 +21,7 @@ export interface Enrollment {
   completed_at?: string;
   status: 'active' | 'completed' | 'expired';
   progress: number;
+  last_position: number; 
 }
 
 export interface ApiResponse<T> {
@@ -89,6 +90,40 @@ export const useCourseStore = defineStore('course', () => {
     }
   };
 
+  /** Update user's course progress */
+  const updateCourseProgress = async (
+    courseId: number,
+    currentTime: number,
+    duration: number
+  ): Promise<Enrollment> => {
+    try {
+      console.log(
+        '[Course Store] Updating progress for course:',
+        courseId,
+        `at ${currentTime}/${duration}`
+      );
+      const { data } = await api.post<ApiResponse<Enrollment>>(
+        `/courses/${courseId}/progress`,
+        {
+          currentTime,
+          duration,
+        }
+      );
+      console.log('[Course Store] Progress updated:', data.data.progress + '%');
+
+      // Update current enrollment in the store if it matches
+      if (currentEnrollment.value && currentEnrollment.value.course_id === courseId) {
+        currentEnrollment.value = data.data;
+      }
+
+      return data.data;
+    } catch (error) {
+      console.error('[Course Store] Course progress update failed:', error);
+      // Don't rethrow, just log and return current enrollment to allow playback to continue
+      return currentEnrollment.value!;
+    }
+  };
+
   return {
     courses,
     currentCourse,
@@ -96,5 +131,6 @@ export const useCourseStore = defineStore('course', () => {
     fetchCourses,
     fetchCourse,
     enrollCourse,
+    updateCourseProgress,
   };
 });

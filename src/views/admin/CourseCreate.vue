@@ -1,74 +1,51 @@
-
 <template>
-  <div class="space-y-8 max-w-2xl mx-auto py-8">
+  <div class="space-y-8 max-w-2xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
     <!-- Header -->
-    <div class="p-6 rounded-3xl bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-lg">
+    <div class="card backdrop-blur">
       <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Create New Course</h1>
-        <router-link
-          to="/admin/courses"
-          class="btn-3d btn-3d-border rounded-full px-6 py-3 text-white/80 hover:text-white"
-        >
-          Back to Courses
-        </router-link>
+        <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">Create New Course</h1>
+        <router-link to="/admin/courses" class="btn-3d">Back to Courses</router-link>
       </div>
     </div>
 
     <!-- Create Form -->
-    <div class="p-6 rounded-3xl bg-white/80 dark:bg-navy-800/80 backdrop-blur-md shadow-md">
+    <div class="card backdrop-blur">
       <form @submit.prevent="handleCreate" class="space-y-6">
         <!-- Title -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Title</label>
-          <input
-            v-model="form.title"
-            type="text"
-            required
-            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
-          />
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Title</label>
+          <input v-model="form.title" type="text" required class="input" />
         </div>
 
         <!-- Description -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-          <textarea
-            v-model="form.description"
-            required
-            rows="4"
-            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
-          ></textarea>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Description</label>
+          <textarea v-model="form.description" required rows="4" class="input"></textarea>
         </div>
 
         <!-- Price -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price ($)</label>
-          <input
-            v-model.number="form.price"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
-          />
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Price ($)</label>
+          <input v-model.number="form.price" type="number" min="0" step="0.01" required class="input" />
         </div>
 
         <!-- Video Toggle -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Video Source</label>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Video Source</label>
           <div class="flex space-x-2 mb-3">
             <button
               type="button"
               @click="setVideoSource('url')"
-              :class="videoSource === 'url' ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-navy-600 text-gray-700 dark:text-gray-300'"
-              class="px-4 py-2 rounded-full font-medium transition"
+              :class="videoSource === 'url' ? 'btn-primary' : 'btn-secondary'"
+              class="px-4 py-2 text-sm"
             >
               Video URL
             </button>
             <button
               type="button"
               @click="setVideoSource('upload')"
-              :class="videoSource === 'upload' ? 'bg-primary-600 text-white' : 'bg-gray-200 dark:bg-navy-600 text-gray-700 dark:text-gray-300'"
-              class="px-4 py-2 rounded-full font-medium transition"
+              :class="videoSource === 'upload' ? 'btn-primary' : 'btn-secondary'"
+              class="px-4 py-2 text-sm"
             >
               Upload Video
             </button>
@@ -76,12 +53,7 @@
 
           <!-- Video URL -->
           <div v-if="videoSource === 'url'">
-            <input
-              v-model="form.video_url"
-              type="url"
-              placeholder="Enter video URL"
-              class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md"
-            />
+            <input v-model="form.video_url" type="url" placeholder="Enter video URL" class="input" />
           </div>
 
           <!-- Video Upload -->
@@ -90,26 +62,29 @@
               type="file"
               accept="video/mp4,video/avi,video/mov,video/wmv"
               @change="handleVideoUpload"
-              class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+              class="input file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
             />
-            <p v-if="form.video_path" class="text-sm text-gray-500 mt-2 truncate">
+            <p v-if="form.video_path" class="text-sm text-neutral-500 dark:text-neutral-400 mt-2 truncate">
               Selected: {{ form.video_path.name }}
             </p>
           </div>
         </div>
 
-        <!-- Thumbnail -->
+        <!-- Thumbnail (Required) -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Thumbnail Image (optional)</label>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+            Thumbnail Image <span class="text-red-600">*</span>
+          </label>
           <input
             ref="thumbnailInput"
             type="file"
             accept="image/*"
+            required
             @change="handleThumbnailChange"
-            class="w-full px-4 py-3 text-lg border border-gray-300 dark:border-navy-600 rounded-2xl bg-white dark:bg-navy-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-md file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+            class="input file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
           />
           <div v-if="form.thumbnailPreview" class="mt-2">
-            <img :src="form.thumbnailPreview" alt="Preview" class="w-32 h-20 object-cover rounded-lg" />
+            <img :src="form.thumbnailPreview" alt="Preview" class="w-32 h-20 object-cover rounded-md" />
           </div>
         </div>
 
@@ -119,25 +94,20 @@
             id="is_active"
             v-model="form.is_active"
             type="checkbox"
-            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-navy-600 rounded"
+            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded"
           />
-          <label for="is_active" class="ml-2 block text-sm text-gray-900 dark:text-white">Is Active</label>
+          <label for="is_active" class="ml-2 block text-sm text-neutral-900 dark:text-white">Is Active</label>
         </div>
 
         <!-- Errors -->
         <div v-if="errors.length > 0" class="space-y-1">
-          <p v-for="error in errors" :key="error" class="text-red-600 text-sm">{{ error }}</p>
+          <p v-for="error in errors" :key="error" class="text-red-600 dark:text-red-400 text-sm">{{ error }}</p>
         </div>
 
         <!-- Buttons -->
         <div class="flex justify-end space-x-3 pt-4">
-          <router-link
-            to="/admin/courses"
-            class="px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-navy-600 hover:bg-gray-300 dark:hover:bg-navy-500 rounded-2xl transition"
-          >
-            Cancel
-          </router-link>
-          <button type="submit" :disabled="loading" class="btn-3d btn-3d-border rounded-full px-6 py-3">
+          <router-link to="/admin/courses" class="btn-secondary">Cancel</router-link>
+          <button type="submit" :disabled="loading" class="btn-3d">
             {{ loading ? 'Creating...' : 'Create Course' }}
           </button>
         </div>
@@ -175,11 +145,8 @@ const form = reactive({
 
 const setVideoSource = (source: 'url' | 'upload') => {
   videoSource.value = source
-  if (source === 'url') {
-    form.video_path = null
-  } else {
-    form.video_url = ''
-  }
+  if (source === 'url') form.video_path = null
+  else form.video_url = ''
 }
 
 const handleThumbnailChange = (event: Event) => {
@@ -202,9 +169,13 @@ const handleVideoUpload = (event: Event) => {
 }
 
 const handleCreate = async () => {
-  // Client-side validation
   if (!form.title?.trim() || !form.description?.trim() || !form.price || form.price <= 0) {
     errors.value = ['Title, description, and a valid price are required']
+    return
+  }
+
+  if (!form.thumbnail) {
+    errors.value = ['Thumbnail is required']
     return
   }
 
@@ -212,28 +183,29 @@ const handleCreate = async () => {
     loading.value = true
     errors.value = []
 
-    const formData = new FormData()
-    formData.append('title', form.title)
-    formData.append('description', form.description)
-    formData.append('price', form.price.toString())
-    formData.append('is_active', form.is_active ? '1' : '0')
-
-    if (videoSource.value === 'url' && form.video_url?.trim()) {
-      formData.append('video_url', form.video_url)
-    }
-    if (videoSource.value === 'upload' && form.video_path instanceof File) {
-      formData.append('video_path', form.video_path)
-    }
-    if (form.thumbnail instanceof File) {
-      formData.append('thumbnail', form.thumbnail)
+    const submitData: any = {
+      title: form.title,
+      description: form.description,
+      price: form.price,
+      is_active: form.is_active
     }
 
-    await adminCoursesStore.createCourse(form)
+    if (videoSource.value === 'url') {
+      submitData.video_url = form.video_url || ''
+      submitData.video_path = ''
+    } else if (form.video_path instanceof File) {
+      submitData.video_path = form.video_path
+      submitData.video_url = ''
+    }
+
+    submitData.thumbnail = form.thumbnail
+
+    await adminCoursesStore.createCourse(submitData)
     toast.success('Course created successfully')
     router.push('/admin/courses')
   } catch (error: any) {
     const message = error.response?.data?.message || 'Failed to create course'
-    errors.value = message.includes(';') ? message.split('; ').filter((m: string) => m) : [message]
+    errors.value = Array.isArray(message) ? message : [message]
     toast.error('Failed to create course')
   } finally {
     loading.value = false

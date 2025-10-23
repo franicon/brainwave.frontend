@@ -1,20 +1,20 @@
 <template>
   <div v-if="adminStore.loading" class="flex justify-center items-center h-64">
-    <p class="text-lg text-gray-600">Loading dashboard...</p>
+    <p class="text-base text-neutral-600 dark:text-neutral-400">Loading dashboard...</p>
   </div>
 
   <div v-else class="space-y-8">
     <!-- Dashboard Header -->
-    <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg border">
-      <h1 class="text-xl font-bold text-gray-900">Overview</h1>
-      <span class="text-sm text-gray-600">Current Month: {{ currentMonth }}</span>
+    <div class="card backdrop-blur flex justify-between items-center">
+      <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">Overview</h1>
+      <span class="text-sm text-neutral-600 dark:text-neutral-400">Current Month: {{ currentMonth }}</span>
     </div>
 
     <!-- Main Widgets Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Users Overview Widget -->
-      <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Users Overview</h3>
+      <div class="card backdrop-blur p-6">
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Users Overview</h3>
         <div class="relative h-64 mb-6">
           <ApexChart
             type="donut"
@@ -24,29 +24,29 @@
           />
           <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="text-center">
-              <p class="text-3xl font-bold text-primary-500">{{ adminStore.totalUsers }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Total Users</p>
+              <p class="text-3xl font-bold text-primary-600">{{ adminStore.totalUsers }}</p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Total Users</p>
             </div>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p class="font-medium text-gray-900 dark:text-white">Active</p>
-            <p class="text-gray-500 dark:text-gray-400">{{ adminStore.activeUsers }}</p>
+            <p class="font-medium text-neutral-900 dark:text-white">Active</p>
+            <p class="text-neutral-500 dark:text-neutral-400">{{ adminStore.activeUsers }}</p>
           </div>
           <div>
-            <p class="font-medium text-gray-900 dark:text-white">Inactive</p>
-            <p class="text-gray-500 dark:text-gray-400">{{ adminStore.totalUsers - adminStore.activeUsers }}</p>
+            <p class="font-medium text-neutral-900 dark:text-white">Inactive</p>
+            <p class="text-neutral-500 dark:text-neutral-400">{{ adminStore.totalUsers - adminStore.activeUsers }}</p>
           </div>
         </div>
       </div>
 
       <!-- Analytics Overview Widget -->
-      <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Analytics Overview</h3>
+      <div class="card backdrop-blur p-6">
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Analytics Overview</h3>
         <div class="text-center mb-6">
           <p class="text-3xl font-bold text-green-600 dark:text-green-400">{{ adminStore.totalRevenue.toLocaleString() }}</p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">Total Revenue PKR</p>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">Total Revenue PKR</p>
         </div>
         <div class="h-48">
           <ApexChart
@@ -59,12 +59,12 @@
       </div>
 
       <!-- Daily Revenue Widget -->
-      <div class="card p-6">
+      <div class="card backdrop-blur p-6">
         <div class="mb-4">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Daily Revenue</h3>
+          <h3 class="text-lg font-semibold text-neutral-900 dark:text-white">Daily Revenue</h3>
           <div class="mt-2">
-            <label class="block text-xs text-gray-600 dark:text-gray-400 mb-1">Select Date</label>
-            <input type="date" v-model="selectedDate" class="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-1 text-sm dark:bg-navy-700 dark:text-white">
+            <label class="block text-xs text-neutral-600 dark:text-neutral-400 mb-1">Select Date</label>
+            <input type="date" v-model="selectedDate" class="input" />
           </div>
         </div>
         <div class="h-64">
@@ -81,8 +81,8 @@
     <!-- Additional Metrics Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Top Wallet Balances Widget -->
-      <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Top Wallet Balances</h3>
+      <div class="card backdrop-blur p-6">
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Top Wallet Balances</h3>
         <div class="h-64 mb-2">
           <ApexChart
             type="bar"
@@ -91,12 +91,12 @@
             height="100%"
           />
         </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400 text-center">Top 5 Users</p>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 text-center">Top 5 Users</p>
       </div>
 
       <!-- Plans Overview Widget -->
-      <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Plans Overview</h3>
+      <div class="card backdrop-blur p-6">
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Plans Overview</h3>
         <div class="relative h-64 mb-6">
           <ApexChart
             type="donut"
@@ -106,26 +106,26 @@
           />
           <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div class="text-center">
-              <p class="text-3xl font-bold text-primary-500">{{ adminStore.totalPlans }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Total Plans</p>
+              <p class="text-3xl font-bold text-primary-600">{{ adminStore.totalPlans }}</p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">Total Plans</p>
             </div>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <p class="font-medium text-gray-900 dark:text-white">Active</p>
-            <p class="text-gray-500 dark:text-gray-400">{{ adminStore.plansActive }}</p>
+            <p class="font-medium text-neutral-900 dark:text-white">Active</p>
+            <p class="text-neutral-500 dark:text-neutral-400">{{ adminStore.plansActive }}</p>
           </div>
           <div>
-            <p class="font-medium text-gray-900 dark:text-white">Inactive</p>
-            <p class="text-gray-500 dark:text-gray-400">{{ adminStore.totalPlans - adminStore.plansActive }}</p>
+            <p class="font-medium text-neutral-900 dark:text-white">Inactive</p>
+            <p class="text-neutral-500 dark:text-neutral-400">{{ adminStore.totalPlans - adminStore.plansActive }}</p>
           </div>
         </div>
       </div>
 
       <!-- Transaction Types Widget -->
-      <div class="card p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Transaction Types</h3>
+      <div class="card backdrop-blur p-6">
+        <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Transaction Types</h3>
         <div class="h-64">
           <ApexChart
             type="pie"
@@ -183,7 +183,7 @@ const doughnutOptions = computed(() => ({
 }));
 
 // Metrics Bar Chart
-const metricsCategories = ['Active Subscriptions', 'Total Courses', 'Pending Enrollments'];
+const metricsCategories = ['Subscriptions', 'Courses', 'Pending Enrollments'];
 const metricsSeries = computed(() => [{ name: 'Count', data: [adminStore.activeSubscriptions, adminStore.totalCourses, adminStore.pendingEnrollments] }]);
 const metricsOptions = computed(() => ({
   plotOptions: {
@@ -224,8 +224,11 @@ const revenueLabel = computed(() => {
   const date = new Date(selectedDate.value);
   return date.getDate().toString() + ' ' + date.toLocaleString('default', { month: 'long' });
 });
-const revenueSeries = computed(() => [{ name: 'Revenue (PKR)', data: adminStore.revenue }]);
+const revenueSeries = computed(() => [{ name: 'Revenue (PKR)', data: Array.isArray(adminStore.revenue) ? adminStore.revenue : [adminStore.revenue || 0] }]);
 const revenueOptions = computed(() => ({
+  chart: {
+    type: 'bar',
+  },
   plotOptions: {
     bar: {
       borderRadius: 4,
@@ -235,6 +238,11 @@ const revenueOptions = computed(() => ({
   colors: ['#10B981'],
   xaxis: {
     categories: [revenueLabel.value],
+    labels: {
+      style: {
+        colors: isDark.value ? '#E5E7EB' : '#111827',
+      },
+    },
     grid: {
       xaxis: {
         lines: {
@@ -246,6 +254,9 @@ const revenueOptions = computed(() => ({
   yaxis: {
     labels: {
       formatter: (val: number) => val.toLocaleString() + ' PKR',
+      style: {
+        colors: isDark.value ? '#E5E7EB' : '#111827',
+      },
     },
   },
   dataLabels: {
@@ -272,10 +283,18 @@ const walletOptions = computed(() => ({
   colors: ['#3B82F6'],
   xaxis: {
     categories: walletLabels.value,
+    labels: {
+      style: {
+        colors: isDark.value ? '#E5E7EB' : '#111827',
+      },
+    },
   },
   yaxis: {
     labels: {
       formatter: (val: number) => val.toLocaleString() + ' PKR',
+      style: {
+        colors: isDark.value ? '#E5E7EB' : '#111827',
+      },
     },
   },
   dataLabels: {
@@ -326,6 +345,9 @@ const transactionsOptions = computed(() => ({
   colors: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
   legend: {
     position: 'bottom',
+    labels: {
+      fontColor: isDark.value ? '#E5E7EB' : '#111827',
+    },
   },
   dataLabels: {
     enabled: false,
