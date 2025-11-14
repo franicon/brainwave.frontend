@@ -1,5 +1,4 @@
-// src/stores/adminSettings.ts (completed - merged existing actions and state)
-
+// src/stores/adminSettings.ts
 import { defineStore } from 'pinia';
 import api from '@/services/api';
 import { useToast } from 'vue-toastification';
@@ -27,12 +26,6 @@ export interface UpdateApiKeysResponse {
 
 export interface SeoSettings {
   id?: number;
-  site_title: string;
-  site_description: string;
-  default_keywords: string;
-  canonical_base_url: string;
-  enable_meta_keywords: boolean;
-  robots_txt_content: string;
   sitemap_options: {
     pages: boolean;
     posts: boolean;
@@ -62,7 +55,6 @@ export const useAdminSettingsStore = defineStore('adminSettings', {
     errors: [] as string[],
     seoSettings: {} as SeoSettings,
   }),
-
   actions: {
     async fetchApiKeys() {
       this.loading = true;
@@ -78,7 +70,6 @@ export const useAdminSettingsStore = defineStore('adminSettings', {
         this.loading = false;
       }
     },
-
     async updatePassword(currentPassword: string, newPassword: string) {
       this.passwordLoading = true;
       this.errors = [];
@@ -98,7 +89,6 @@ export const useAdminSettingsStore = defineStore('adminSettings', {
         this.passwordLoading = false;
       }
     },
-
     async updateApiKeys(keys: ApiKey[]) {
       this.apiKeysLoading = true;
       this.errors = [];
@@ -115,20 +105,13 @@ export const useAdminSettingsStore = defineStore('adminSettings', {
         this.apiKeysLoading = false;
       }
     },
-
     async fetchSeoSettings() {
       this.seoLoading = true;
       try {
         const { data } = await api.get<SeoResponse>('/admin/settings/seo');
         this.seoSettings = data.data;
-        // Ensure sitemap_options has defaults if missing
         if (!this.seoSettings.sitemap_options) {
-          this.seoSettings.sitemap_options = {
-            pages: true,
-            posts: true,
-            categories: true,
-            images: false,
-          };
+          this.seoSettings.sitemap_options = { pages: true, posts: true, categories: true, images: false };
         }
         return data.data;
       } catch (error: any) {
@@ -139,7 +122,6 @@ export const useAdminSettingsStore = defineStore('adminSettings', {
         this.seoLoading = false;
       }
     },
-
     async updateSeoSettings(seoData: Partial<SeoSettings>) {
       this.seoLoading = true;
       this.errors = [];
@@ -156,7 +138,6 @@ export const useAdminSettingsStore = defineStore('adminSettings', {
         this.seoLoading = false;
       }
     },
-
     async fetchRobotsTxt() {
       this.robotsLoading = true;
       try {
@@ -170,7 +151,6 @@ export const useAdminSettingsStore = defineStore('adminSettings', {
         this.robotsLoading = false;
       }
     },
-
     async updateRobotsTxt(content: string) {
       this.robotsLoading = true;
       this.errors = [];

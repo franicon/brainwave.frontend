@@ -1,3 +1,6 @@
+// Updated: src/router/index.ts
+// Changes: Add /employee/ routes parallel to /admin/ for employees; adjust guards -->
+
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
@@ -12,23 +15,38 @@ const routes = [
     component: () => import('../views/dashboard/UserDashboard.vue'),
     meta: { requiresAuth: true, userOnly: true }
   },
+  // Super Admin Routes (/admin/)
   { 
     path: '/admin/dashboard', 
     component: () => import('../views/dashboard/AdminDashboard.vue'),
-    meta: { requiresAuth: true, adminOnly: true }
+    meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true }
   },
+  { path: '/admin/courses/create', component: () => import('../views/admin/CourseCreate.vue'), meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true } },
+  { path: '/admin/users', component: () => import('../views/admin/Users.vue'), meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true } },
+  { path: '/admin/courses', component: () => import('../views/admin/Courses.vue'), meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true } },
+  { path: '/admin/employees', component: () => import('../views/admin/Employees.vue'), meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true } }, 
+  { path: '/admin/plans', component: () => import('../views/admin/Plans.vue'), meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true } },
+  { path: '/admin/blogs', component: () => import('../views/admin/Blogs.vue'), meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true } },
+  { path: '/admin/settings', component: () => import('../views/admin/AdminSettings.vue'), meta: { requiresAuth: true, adminOnly: true, superAdminOnly: true } },
+  // Employee Routes (/employee/)
+  { 
+    path: '/employee/dashboard', 
+    component: () => import('../views/dashboard/AdminDashboard.vue'),
+    meta: { requiresAuth: true, adminOnly: true, employeeOnly: true }
+  },
+  { path: '/employee/users', component: () => import('../views/admin/Users.vue'), meta: { requiresAuth: true, adminOnly: true, employeeOnly: true } },
+  { path: '/employee/courses', component: () => import('../views/admin/Courses.vue'), meta: { requiresAuth: true, adminOnly: true, employeeOnly: true } },
+  { path: '/employee/blogs', component: () => import('../views/admin/Blogs.vue'), meta: { requiresAuth: true, adminOnly: true, employeeOnly: true } },
+  { path: '/employee/employees', component: () => import('../views/admin/Employees.vue'), meta: { requiresAuth: true, adminOnly: true, employeeOnly: true } },
+  { path: '/employee/plans', component: () => import('../views/admin/Plans.vue'), meta: { requiresAuth: true, adminOnly: true, employeeOnly: true } },
+  { path: '/employee/settings', component: () => import('../views/admin/AdminSettings.vue'), meta: { requiresAuth: true, adminOnly: true, employeeOnly: true } },
+  { path: '/employee/courses/create', component: () => import('../views/admin/CourseCreate.vue'), meta: { requiresAuth: true, adminOnly: true, employeeOnly: true } },
   { path: '/plans', component: () => import('../views/plans/Plans.vue'), meta: { requiresAuth: true, userOnly: true } },
   { path: '/courses', component: () => import('../views/courses/Courses.vue'), meta: { requiresAuth: true, userOnly: true } },
   { path: '/courses/:id', component: () => import('../views/courses/CourseDetail.vue'), meta: { requiresAuth: true, userOnly: true } },
   { path: '/courses/:id/play', component: () => import('../views/courses/CoursePlay.vue'), meta: { requiresAuth: true, userOnly: true } },
   { path: '/wallet', component: () => import('../views/wallet/Wallet.vue'), meta: { requiresAuth: true, userOnly: true } },
   { path: '/settings', component: () => import('../views/Settings.vue'), meta: { requiresAuth: true, userOnly: true } },
-  { path: '/admin/courses/create', component: () => import('../views/admin/CourseCreate.vue'), meta: { requiresAuth: true, adminOnly: true } },
-  { path: '/admin/users', component: () => import('../views/admin/Users.vue'), meta: { requiresAuth: true, adminOnly: true } },
-  { path: '/admin/courses', component: () => import('../views/admin/Courses.vue'), meta: { requiresAuth: true, adminOnly: true } },
-  { path: '/admin/plans', component: () => import('../views/admin/Plans.vue'), meta: { requiresAuth: true, adminOnly: true } },
-  { path: '/admin/blogs', component: () => import('../views/admin/Blogs.vue'), meta: { requiresAuth: true, adminOnly: true } },
-  { path: '/admin/settings', component: () => import('../views/admin/AdminSettings.vue'), meta: { requiresAuth: true, adminOnly: true } },
   { path: '/:pathMatch(.*)*', redirect: '/dashboard' },
 ];
 
@@ -44,15 +62,28 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next(to.path.startsWith('/admin') ? '/admin-login' : '/login');
+    next(to.path.startsWith('/admin') || to.path.startsWith('/employee') ? '/admin-login' : '/login');
     return;
   }
-  if (to.meta.userOnly && authStore.isAdmin) {
-    next('/admin/dashboard');
+  if (to.meta.userOnly && authStore.isAdmin) { 
+    const redirectPath = authStore.isSuperAdmin ? '/admin/dashboard' : '/employee/dashboard';
+    next(redirectPath);
     return;
   }
   if (to.meta.adminOnly && !authStore.isAdmin) {
     next('/admin-login');
+    return;
+  }
+  
+  if (to.path.startsWith('/admin/') && authStore.isEmployee) {
+    const relativePath = to.path.replace('/admin', '/employee');
+    next(relativePath);
+    return;
+  }
+ 
+  if (to.path.startsWith('/employee/') && authStore.isSuperAdmin) {
+    const relativePath = to.path.replace('/employee', '/admin');
+    next(relativePath);
     return;
   }
   next();

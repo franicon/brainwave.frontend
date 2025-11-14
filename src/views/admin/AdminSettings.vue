@@ -1,13 +1,14 @@
-<!-- src/views/admin/AdminSettings.vue (completed - full template and script with all sections) -->
+<!-- Updated: src/views/admin/AdminSettings.vue -->
+<!-- Changes: Show only security section for employees; other sections for super admins -->
 
 <template>
-  <div class="space-y-8 max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+  <div class="space-y-8">
     <!-- Header -->
     <div class="card backdrop-blur">
-      <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">Admin Settings</h1>
+      <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">{{ pageTitle }}</h1>
     </div>
 
-    <!-- Security Section -->
+    <!-- Security Section (always shown) -->
     <div class="card backdrop-blur">
       <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Security</h3>
       <form @submit.prevent="handlePasswordUpdate" class="space-y-4">
@@ -53,8 +54,8 @@
       </form>
     </div>
 
-    <!-- Payment Section -->
-    <div class="card backdrop-blur">
+    <!-- Payment Section (super admin only) -->
+    <div v-if="authStore.isSuperAdmin" class="card backdrop-blur">
       <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">Payment API Keys</h3>
       <div v-if="settingsStore.loading" class="flex justify-center items-center h-32">
         <p class="text-base text-neutral-600 dark:text-neutral-400">Loading API keys...</p>
@@ -86,33 +87,10 @@
       </form>
     </div>
 
-    <!-- SEO Section -->
-    <div class="card backdrop-blur">
+    <!-- SEO Section (super admin only) -->
+    <div v-if="authStore.isSuperAdmin" class="card backdrop-blur">
       <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4">SEO Settings</h3>
       <form @submit.prevent="handleSeoUpdate" class="space-y-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Site Title</label>
-            <input v-model="seoForm.site_title" required class="input" placeholder="Site Title" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Canonical Base URL</label>
-            <input v-model="seoForm.canonical_base_url" required type="url" class="input" placeholder="https://brainwave.com" />
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Site Description</label>
-            <textarea v-model="seoForm.site_description" rows="3" class="input" placeholder="Site meta description"></textarea>
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Default Meta Keywords (optional)</label>
-            <input v-model="seoForm.default_keywords" class="input" placeholder="keyword1, keyword2" />
-            <label class="flex items-center mt-2">
-              <input type="checkbox" v-model="seoForm.enable_meta_keywords" class="mr-2" />
-              <span>Enable Meta Keywords</span>
-            </label>
-          </div>
-        </div>
-
         <!-- Analytics -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -133,25 +111,27 @@
           </div>
         </div>
 
-        <!-- Sitemap Options -->
-        <div class="md:col-span-2">
-          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Sitemap Include Options</label>
+       <!-- Sitemap Options -->
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+            Sitemap Include Options
+          </label>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <label class="flex items-center">
               <input type="checkbox" v-model="seoForm.sitemap_options.pages" class="mr-2" />
-              <span>Pages</span>
+              <span class="text-neutral-900 dark:text-white">Pages</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="seoForm.sitemap_options.posts" class="mr-2" />
-              <span>Posts</span>
+              <span class="text-neutral-900 dark:text-white">Posts</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="seoForm.sitemap_options.categories" class="mr-2" />
-              <span>Categories</span>
+              <span class="text-neutral-900 dark:text-white">Categories</span>
             </label>
             <label class="flex items-center">
               <input type="checkbox" v-model="seoForm.sitemap_options.images" class="mr-2" />
-              <span>Images</span>
+              <span class="text-neutral-900 dark:text-white">Images</span>
             </label>
           </div>
         </div>
@@ -189,10 +169,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 import { useAdminSettingsStore } from '@/stores/adminSettings';
 import { useToast } from 'vue-toastification';
 
+const authStore = useAuthStore();
 const settingsStore = useAdminSettingsStore();
 const toast = useToast();
 
@@ -205,19 +187,19 @@ const passwordForm = ref({
 const apiKeysForm = ref<{ key_name: string; key_value: string }[]>([]);
 
 const seoForm = ref({
-  site_title: '',
-  site_description: '',
-  default_keywords: '',
-  canonical_base_url: '',
-  enable_meta_keywords: false,
-  sitemap_options: { pages: true, posts: true, categories: true, images: false },
   google_search_console_id: '',
   google_analytics_id: '',
   google_tag_manager_id: '',
   facebook_pixel_id: '',
+  sitemap_options: { pages: true, posts: true, categories: true, images: false },
 });
 
 const robotsForm = ref({ content: '' });
+
+// Page title based on role
+const pageTitle = computed(() => {
+  return authStore.isEmployee ? 'Employee Settings' : 'Admin Settings';
+});
 
 const resetPasswordForm = () => {
   passwordForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' };
@@ -238,29 +220,32 @@ const handlePasswordUpdate = async () => {
     toast.error('New password and confirmation do not match');
     return;
   }
-
   try {
     await settingsStore.updatePassword(passwordForm.value.currentPassword, passwordForm.value.newPassword);
     resetPasswordForm();
+    toast.success('Password updated successfully');
   } catch (error) {
-    // Errors are handled in the store
+    toast.error('Failed to update password');
   }
 };
 
 const handleApiKeysUpdate = async () => {
   try {
     await settingsStore.updateApiKeys(apiKeysForm.value);
+    toast.success('API keys updated successfully');
   } catch (error) {
-    // Errors are handled in the store
+    toast.error('Failed to update API keys');
   }
 };
 
 const resetSeoForm = () => {
-  seoForm.value = { ...settingsStore.seoSettings };
-  // Ensure defaults for sitemap_options
-  if (!seoForm.value.sitemap_options) {
-    seoForm.value.sitemap_options = { pages: true, posts: true, categories: true, images: false };
-  }
+  seoForm.value = {
+    google_search_console_id: settingsStore.seoSettings.google_search_console_id || '',
+    google_analytics_id: settingsStore.seoSettings.google_analytics_id || '',
+    google_tag_manager_id: settingsStore.seoSettings.google_tag_manager_id || '',
+    facebook_pixel_id: settingsStore.seoSettings.facebook_pixel_id || '',
+    sitemap_options: settingsStore.seoSettings.sitemap_options || { pages: true, posts: true, categories: true, images: false },
+  };
   settingsStore.errors = [];
 };
 
@@ -275,8 +260,9 @@ const handleSeoUpdate = async () => {
   try {
     await settingsStore.updateSeoSettings(seoForm.value);
     resetSeoForm();
+    toast.success('SEO settings updated successfully');
   } catch (error) {
-    // Handled in store
+    toast.error('Failed to update SEO settings');
   }
 };
 
@@ -284,8 +270,9 @@ const handleRobotsUpdate = async () => {
   try {
     await settingsStore.updateRobotsTxt(robotsForm.value.content);
     resetRobotsForm();
+    toast.success('Robots.txt updated successfully');
   } catch (error) {
-    // Handled in store
+    toast.error('Failed to update robots.txt');
   }
 };
 
@@ -293,17 +280,13 @@ onMounted(async () => {
   try {
     await settingsStore.fetchApiKeys();
     resetApiKeysForm();
-  } catch (error) {
-    // Errors are handled in the store
-  }
+  } catch (error) {}
 
   try {
     await settingsStore.fetchSeoSettings();
     resetSeoForm();
     await settingsStore.fetchRobotsTxt();
     resetRobotsForm();
-  } catch (error) {
-    // Errors are handled in the store
-  }
+  } catch (error) {}
 });
 </script>

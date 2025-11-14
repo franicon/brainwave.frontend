@@ -1,3 +1,6 @@
+<!-- Updated: src/layouts/AdminLayout.vue -->
+<!-- Changes: Remove logs; compute prefix for paths based on role; remove v-if for settings gear (now conditional path) -->
+
 <template>
   <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-900 relative">
     <!-- Overlay for mobile -->
@@ -53,12 +56,12 @@
         <nav :class="[isCollapsed && !isMobile ? 'p-3 space-y-2' : 'p-6 space-y-2']">
           <ul :key="`menu-${isCollapsed ? 'collapsed' : 'expanded'}`">
             <li
-              v-for="(item) in adminMenu"
+              v-for="(item) in filteredAdminMenu"
               :key="item.path"
               class="rounded-md hover:bg-neutral-700 transition-colors duration-200"
             >
               <router-link
-                :to="item.path"
+                :to="getFullPath(item.path)"
                 class="flex items-center py-2.5 px-4 text-white font-medium text-base transition-colors duration-200"
                 :class="[isCollapsed && !isMobile ? 'justify-center px-0' : '']"
                 @click="handleMenuClick"
@@ -111,7 +114,7 @@
           </button>
 
           <slot name="header-title">
-            <h1 class="text-xl font-semibold text-neutral-900 dark:text-white">Admin Panel</h1>
+            <h1 class="text-xl font-semibold text-neutral-900 dark:text-white">{{ headerTitle }}</h1>
           </slot>
         </div>
 
@@ -135,7 +138,7 @@
             />
           </button>
           <router-link
-            to="/admin/settings"
+            :to="settingsPath"
             class="p-2 text-neutral-600 dark:text-neutral-300 hover:text-primary-600 rounded-md transition-colors"
           >
             <CogIcon class="w-5 h-5" />
@@ -176,7 +179,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useDarkMode } from '@/composables/useDarkMode';
 import { useCollapse } from '@/composables/useCollapse';
 import { useAuthStore } from '@/stores/auth';
@@ -204,15 +207,57 @@ const authStore = useAuthStore();
 const isOpen = ref(false);
 const modalOpen = ref(false);
 
-const adminMenu = [
-  { path: '/admin/dashboard', label: 'Dashboard', icon: ChartBarIcon },
-  { path: '/admin/users', label: 'Users', icon: UsersIcon },
-  { path: '/admin/courses', label: 'Courses', icon:   BookOpenIcon, },
-  { path: '/admin/courses/create', label: 'Create Course', icon: PlusIcon },
-  { path: '/admin/plans', label: 'Plans', icon: Cog6ToothIcon },
-  { path: '/admin/blogs', label: 'Blogs', icon: BookOpenIcon },
-  { path: '/admin/settings', label: 'Settings', icon: CogIcon },
+// Base menu items (relative paths without prefix)
+const baseAdminMenu = [
+  { path: '/dashboard', label: 'Dashboard', icon: ChartBarIcon },
+  { path: '/users', label: 'Users', icon: UsersIcon },
+  { path: '/employees', label: 'Employees', icon: UsersIcon },
+  { path: '/courses', label: 'Courses', icon: BookOpenIcon },
+  { path: '/courses/create', label: 'Create Course', icon: PlusIcon },
+  { path: '/plans', label: 'Plans', icon: Cog6ToothIcon },
+  { path: '/blogs', label: 'Blogs', icon: BookOpenIcon },
+  { path: '/settings', label: 'Settings', icon: CogIcon },
 ];
+
+const getPermissionKey = (path: string): string | true | false => {
+  if (path === '/dashboard') return true; 
+  if (path.startsWith('/users')) return 'users';
+  if (path.startsWith('/employees')) return 'employees';
+  if (path.startsWith('/courses')) return 'courses';
+  if (path.startsWith('/plans')) return 'plans';
+  if (path.startsWith('/blogs')) return 'blogs';
+  if (path.startsWith('/settings')) return 'settings';
+  return false;
+};
+
+// Compute prefix based on role
+const prefix = computed(() => {
+  return authStore.isSuperAdmin ? '/admin' : '/employee';
+});
+
+// Compute full path for menu items
+const getFullPath = (relativePath: string) => computed(() => prefix.value + relativePath).value;
+
+// Filter menu based on permissions
+const filteredAdminMenu = computed(() => {
+  if (authStore.isSuperAdmin) {
+    return baseAdminMenu;
+  }
+  const permissions = authStore.user?.permissions || [];
+  return baseAdminMenu.filter((item) => {
+    const key = getPermissionKey(item.path);
+    return key === true || permissions.includes(key as string);
+  });
+});
+
+// Settings path
+const settingsPath = computed(() => prefix.value + '/settings');
+
+// Header title based on role
+const headerTitle = computed(() => {
+  if (authStore.isEmployee) return 'Employee Panel';
+  return 'Admin Panel';
+});
 
 const openLogoutConfirm = () => {
   modalOpen.value = true;

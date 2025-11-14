@@ -12,7 +12,8 @@ export interface AdminUser {
   age?: number;
   is_verified: boolean;
   status: string;
-  is_admin: boolean;
+  is_admin: number;
+  permissions: string[];
   created_at: string;
   updated_at: string;
 }

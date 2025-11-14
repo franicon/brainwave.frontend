@@ -1,3 +1,4 @@
+<!-- src\views\admin\Blogs.vue -->
 <template>
   <div class="space-y-8">
     <!-- Header Card -->
@@ -5,7 +6,7 @@
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">Blogs Management</h1>
         <span class="text-sm text-neutral-600 dark:text-neutral-400">
-          Total: {{ adminBlogsStore.totalBlogs }}
+          Total: {{ adminBlogsStore.totalBlogs }} {{ authStore.isSuperAdmin ? `(${adminStore.totalBlogs})` : '' }}
         </span>
       </div>
       <div class="flex justify-end">
@@ -245,9 +246,13 @@
 import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { QuillEditor } from '@vueup/vue-quill';
 import { AdminBlog, useAdminBlogsStore } from '@/stores/adminBlogs';
+import { useAdminStore } from '@/stores/admin';
+import { useAuthStore } from '@/stores/auth';
 import { useToast } from 'vue-toastification';
 
 const adminBlogsStore = useAdminBlogsStore();
+const adminStore = useAdminStore();
+const authStore = useAuthStore();
 const toast = useToast();
 
 interface BlogForm {
@@ -291,23 +296,33 @@ const showDeleteModal = ref(false);
 const blogToDelete = ref<number | null>(null);
 let previewUrl = ref<string | null>(null);
 
-const applyFilters = async () => {
+const getParams = () => {
   const params: any = {};
   if (searchQuery.value) params.search = searchQuery.value;
   if (filters.value.status !== 'all') params.status = filters.value.status;
   if (filters.value.dateFrom) params.date_from = filters.value.dateFrom;
   if (filters.value.dateTo) params.date_to = filters.value.dateTo;
+  if (authStore.isEmployee && authStore.user) {
+    params.creator_id = authStore.user.id;
+  }
+  return params;
+};
+
+const applyFilters = async () => {
+  const params = getParams();
   await adminBlogsStore.fetchBlogs(1, params);
 };
 
-const resetFilters = () => {
+const resetFilters = async () => {
   searchQuery.value = '';
   filters.value = { status: 'all', dateFrom: '', dateTo: '' };
-  adminBlogsStore.fetchBlogs(1);
+  const params = getParams();
+  await adminBlogsStore.fetchBlogs(1, params);
 };
 
 const refreshBlogs = async () => {
-  await adminBlogsStore.fetchBlogs(adminBlogsStore.currentPage);
+  const params = getParams();
+  await adminBlogsStore.fetchBlogs(adminBlogsStore.currentPage, params);
 };
 
 const resetForm = () => {
@@ -419,6 +434,7 @@ const handleDelete = async () => {
   } catch {
     toast.error('Failed to delete blog');
   }
+  await refreshBlogs();
 };
 
 const stripHtml = (text: string) => {
@@ -430,6 +446,8 @@ onUnmounted(() => {
 });
 
 onMounted(async () => {
-  await adminBlogsStore.fetchBlogs();
+  await adminStore.fetchDashboard();
+  const initialParams = authStore.isEmployee && authStore.user ? { creator_id: authStore.user.id } : {};
+  await adminBlogsStore.fetchBlogs(1, initialParams);
 });
 </script>

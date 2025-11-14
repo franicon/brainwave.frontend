@@ -4,7 +4,7 @@
     <div class="card backdrop-blur">
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold text-neutral-900 dark:text-white">Users Management</h1>
-        <span class="text-sm text-neutral-600 dark:text-neutral-400">Total: {{ allUsersStore.totalUsers }} ({{ adminStore.totalUsers }})</span>
+        <span class="text-sm text-neutral-600 dark:text-neutral-400">Total: {{ allUsersStore.totalUsers }} {{ authStore.isSuperAdmin ? `(${adminStore.totalUsers })` : '' }}</span>
       </div>
     </div>
 
@@ -37,8 +37,8 @@
           </select>
         </div>
 
-        <!-- Role Filter -->
-        <div class="md:col-span-1">
+        <!-- Role Filter (Super Admin Only) -->
+        <div v-if="authStore.isSuperAdmin" class="md:col-span-1">
           <select
             v-model="filters.role"
             @change="applyFilters"
@@ -106,7 +106,7 @@
               <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-white">Name</th>
               <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-white">Email</th>
               <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-white">Status</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-white">Role</th>
+              <th v-if="authStore.isSuperAdmin" class="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-white">Role</th>
               <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-900 dark:text-white">Created</th>
               <th class="px-4 py-3 text-right text-sm font-semibold text-neutral-900 dark:text-white">Actions</th>
             </tr>
@@ -132,12 +132,12 @@
                   {{ user.status }}
                 </span>
               </td>
-              <td class="px-4 py-4 whitespace-nowrap">
+              <td v-if="authStore.isSuperAdmin" class="px-4 py-4 whitespace-nowrap">
                 <span
                   class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  :class="user.is_admin ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200'"
+                  :class="user.is_admin === 1 ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200' : user.is_admin === 3 ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-200'"
                 >
-                  {{ user.is_admin ? 'Admin' : 'User' }}
+                  {{ user.is_admin === 1 ? 'Super Admin' : user.is_admin === 3 ? 'Employee' : 'User' }}
                 </span>
               </td>
               <td class="px-4 py-4 whitespace-nowrap text-sm text-neutral-500 dark:text-neutral-400">
@@ -235,9 +235,14 @@
             </select>
           </div>
 
-          <!-- Is Admin -->
-          <div class="flex items-center">
-            <input id="is_admin" v-model="editForm.is_admin" type="checkbox" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded"/>
+          <!-- Is Admin (Super Admin Only) -->
+          <div v-if="authStore.isSuperAdmin" class="flex items-center">
+            <input
+              id="is_admin"
+              v-model="isAdminCheckbox"
+              type="checkbox"
+              class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 dark:border-neutral-600 rounded"
+            />
             <label for="is_admin" class="ml-2 block text-sm text-neutral-900 dark:text-white">Is Admin</label>
           </div>
 
@@ -275,15 +280,17 @@
 import { ref, onMounted, nextTick, Ref } from 'vue';
 import { AdminUser, useAllUsersStore } from '@/stores/allUsers';
 import { useAdminStore } from '@/stores/admin';
+import { useAuthStore } from '@/stores/auth';
 import { useToast } from 'vue-toastification';
 
 const allUsersStore = useAllUsersStore();
 const adminStore = useAdminStore();
+const authStore = useAuthStore();
 const toast = useToast();
 
 // Search
 const searchQuery = ref('');
-const debouncedSearch = (function() {
+const debouncedSearch = (function () {
   let timeout: NodeJS.Timeout;
   return () => {
     clearTimeout(timeout);
@@ -309,8 +316,9 @@ const editForm: Ref<Partial<AdminUser> & { id: number }> = ref({
   phone: '',
   age: 0,
   status: 'active',
-  is_admin: false,
+  is_admin: 0,
 });
+const isAdminCheckbox = ref(false);
 const editLoading = ref(false);
 const editErrors = ref<string[]>([]);
 
@@ -319,33 +327,43 @@ const showDeleteModal = ref(false);
 const userToDelete = ref<number | null>(null);
 
 // Methods
-const applyFilters = async () => {
+const getParams = () => {
   const params: any = {};
   if (searchQuery.value) params.search = searchQuery.value;
   if (filters.value.status !== 'all') params.status = filters.value.status;
   if (filters.value.role !== 'all') params.role = filters.value.role;
   if (filters.value.dateFrom) params.date_from = filters.value.dateFrom;
   if (filters.value.dateTo) params.date_to = filters.value.dateTo;
-  
+  if (authStore.isEmployee) {
+    params.exclude_roles = 'super_admin,employee'; // Exclude super admins and employees
+  }
+  return params;
+};
+
+const applyFilters = async () => {
+  const params = getParams();
   await allUsersStore.fetchUsers(1, params);
 };
 
 const resetFilters = () => {
   searchQuery.value = '';
   filters.value = { status: 'all', role: 'all', dateFrom: '', dateTo: '' };
-  allUsersStore.fetchUsers(1);
+  const params = getParams();
+  allUsersStore.fetchUsers(1, params);
 };
 
 const refreshUsers = async () => {
-  await allUsersStore.fetchUsers(allUsersStore.currentPage);
+  const params = getParams();
+  await allUsersStore.fetchUsers(allUsersStore.currentPage, params);
 };
 
 const editUser = (user: AdminUser) => {
   editForm.value = { ...user, age: user.age || 0 };
+  isAdminCheckbox.value = user.is_admin === 1;
   editErrors.value = [];
   showEditModal.value = true;
   nextTick(() => {
-    const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement;
+    const nameInput = document.querySelector('input[type="text"]') as HTMLInputElement;
     if (nameInput) nameInput.focus();
   });
 };
@@ -359,7 +377,13 @@ const handleEdit = async () => {
   try {
     editLoading.value = true;
     editErrors.value = [];
-    await allUsersStore.updateUser(editForm.value.id, editForm.value);
+    const submitData = { ...editForm.value };
+    if (authStore.isSuperAdmin) {
+      submitData.is_admin = isAdminCheckbox.value ? 1 : 0;
+    } else {
+      delete submitData.is_admin; // Don't allow employees to change role
+    }
+    await allUsersStore.updateUser(editForm.value.id, submitData);
     toast.success('User updated successfully');
     showEditModal.value = false;
     await refreshUsers();
@@ -383,6 +407,7 @@ const handleDelete = async () => {
     await allUsersStore.deleteUser(userToDelete.value);
     toast.success('User deleted successfully');
     showDeleteModal.value = false;
+    await refreshUsers();
   } catch (error) {
     toast.error('Failed to delete user');
   }
@@ -390,7 +415,9 @@ const handleDelete = async () => {
 
 // onMounted
 onMounted(async () => {
+  await authStore.checkAuthStatus();
   await adminStore.fetchDashboard();
-  await allUsersStore.fetchUsers();
+  const initialParams = authStore.isEmployee ? { exclude_roles: 'super_admin,employee' } : {};
+  await allUsersStore.fetchUsers(1, initialParams);
 });
 </script>

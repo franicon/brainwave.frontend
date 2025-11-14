@@ -1,3 +1,4 @@
+// src\stores\admin.ts
 import { defineStore } from 'pinia';
 import api from '@/services/api';
 
@@ -7,6 +8,10 @@ export interface AdminDashboardData {
   total_revenue: number;
   active_subscriptions: number;
   total_courses: number;
+  active_courses: number;
+  total_blogs: number;
+  active_blogs: number;
+  total_enrollments: number;
   pending_enrollments: number;
   total_wallet_balance: number;
   total_plans: number;
@@ -16,6 +21,8 @@ export interface AdminDashboardData {
   plans_active: number;
   transaction_types: { [key: string]: number };
   top_wallets: { name: string; balance: number }[];
+  total_employees: number;
+  active_employees: number;
 }
 
 export interface ApiResponse<T> {
@@ -35,6 +42,10 @@ export const useAdminStore = defineStore('admin', {
     totalRevenue: (state) => state.dashboard?.total_revenue ?? 0,
     activeSubscriptions: (state) => state.dashboard?.active_subscriptions ?? 0,
     totalCourses: (state) => state.dashboard?.total_courses ?? 0,
+    activeCourses: (state) => state.dashboard?.active_courses ?? 0,
+    totalBlogs: (state) => state.dashboard?.total_blogs ?? 0,
+    activeBlogs: (state) => state.dashboard?.active_blogs ?? 0,
+    totalEnrollments: (state) => state.dashboard?.total_enrollments ?? 0,
     pendingEnrollments: (state) => state.dashboard?.pending_enrollments ?? 0,
     totalWalletBalance: (state) => state.dashboard?.total_wallet_balance ?? 0,
     totalPlans: (state) => state.dashboard?.total_plans ?? 0,
@@ -44,6 +55,8 @@ export const useAdminStore = defineStore('admin', {
     plansActive: (state) => state.dashboard?.plans_active ?? 0,
     transactionTypes: (state) => state.dashboard?.transaction_types ?? {},
     topWallets: (state) => state.dashboard?.top_wallets ?? [],
+    totalEmployees: (state) => state.dashboard?.total_employees ?? 0,
+    activeEmployees: (state) => state.dashboard?.active_employees ?? 0,
   },
   actions: {
     async fetchDashboard(params: { from_date?: string; to_date?: string } = {}) {

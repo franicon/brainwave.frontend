@@ -1,0 +1,13 @@
+.plyr-wrapper {
+  @apply bg-neutral-900 rounded-lg;
+  background-opacity: 0.5;
+}
+
+.plyr-controls {
+  @apply bg-neutral-900 rounded-lg backdrop-blur;
+  background-opacity: 0.8;
+}
+
+.plyr-control {
+  @apply bg-primary-600 hover:bg-primary-700;
+}

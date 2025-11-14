@@ -1,3 +1,6 @@
+// Updated: src/stores/auth.ts
+// Changes: Ensure permissions are always included; log for debugging
+
 import { defineStore } from 'pinia';
 import router from '@/router';
 import api from '@/services/api';
@@ -16,7 +19,8 @@ export interface AuthResponse {
       is_verified: boolean;
       email_verified_at?: string;
       status: string;
-      is_admin: boolean;
+      is_admin: number; // Changed: number
+      permissions?: string[]; // New
       created_at: string;
       updated_at: string;
     };
@@ -35,7 +39,8 @@ export interface UserProfile {
   is_verified: boolean;
   email_verified_at?: string;
   status: string;
-  is_admin: boolean;
+  is_admin: number; // Changed: number
+  permissions?: string[]; // New
   created_at: string;
   updated_at: string;
 }
@@ -47,7 +52,9 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     isAuthenticated: (state) => !!state.token && !!state.user,
-    isAdmin: (state) => state.user?.is_admin || false,
+    isAdmin: (state) => state.user && state.user.is_admin > 0, 
+    isSuperAdmin: (state) => state.user && state.user.is_admin === 1, 
+    isEmployee: (state) => state.user && state.user.is_admin === 3,
   },
   actions: {
     async login(credentials: { email: string; password: string }) {
@@ -68,12 +75,14 @@ export const useAuthStore = defineStore('auth', {
         this.token = data.data.token as string; 
         localStorage.setItem('token', this.token);
         
-        // Use response user as initial, then fetch full profile for consistency
-        this.user = data.data.user;
-        await this.fetchUserProfile();  // Ensures latest data
-        
-        console.log('[Auth Store] Navigating to dashboard...');
-        await router.push('/dashboard');
+       
+        this.user = { ...data.data.user, permissions: data.data.user.permissions || [] }; // Ensure permissions
+        console.log('[Auth Store] Initial user set with permissions:', this.user.permissions);
+        await this.fetchUserProfile();
+     
+        const redirectPath = this.user.is_admin > 0 ? '/admin/dashboard' : '/dashboard';
+        console.log('[Auth Store] Navigating to:', redirectPath);
+        await router.push(redirectPath);
 
       } catch (error: any) {
         console.error("[Auth Store] Login failed:", error);
@@ -91,11 +100,12 @@ export const useAuthStore = defineStore('auth', {
         this.token = data.data.token as string; 
         localStorage.setItem('token', this.token);
         
-        // Use response user as initial, then fetch full profile
-        this.user = data.data.user;
+     
+        this.user = { ...data.data.user, permissions: data.data.user.permissions || [] }; // Ensure permissions
+        console.log('[Auth Store] Initial user set with permissions:', this.user.permissions);
         await this.fetchUserProfile();
         
-        await new Promise(resolve => setTimeout(resolve, 100));  // Reactivity delay
+        await new Promise(resolve => setTimeout(resolve, 100));  
         
         console.log('[Auth Store] Navigating to admin dashboard...');
         await router.push('/admin/dashboard');
@@ -176,8 +186,8 @@ export const useAuthStore = defineStore('auth', {
       try {
         console.log('[Auth Store] Fetching user profile...');
         const { data } = await api.get<UserProfile>('/user');
-        this.user = data;
-        console.log('[Auth Store] User profile fetched:', this.user);
+        this.user = { ...data, permissions: data.permissions || [] }; // Ensure permissions
+        console.log('[Auth Store] User profile fetched with permissions:', this.user.permissions);
         return data;
       } catch (error: any) {
         console.error("[Auth Store] Fetch user profile failed:", error);
@@ -201,7 +211,7 @@ export const useAuthStore = defineStore('auth', {
         this.token = null;
         this.user = null;
       }
-      console.log('[Auth Store] Is authenticated:', this.isAuthenticated, 'Is admin:', this.isAdmin);
+      console.log('[Auth Store] Is authenticated:', this.isAuthenticated, 'Is admin:', this.isAdmin, 'Permissions:', this.user?.permissions);
     },
 
     logout() {

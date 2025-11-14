@@ -29,6 +29,9 @@ import {
   faSpinner,
   faBars,
   faTachometerAlt,
+  faClock,      
+  faTag,    
+  faCircleCheck,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
@@ -60,7 +63,10 @@ library.add(
   faChevronRight,
   faSpinner,
   faBars,
-  faTachometerAlt
+  faTachometerAlt,
+  faClock,      
+  faTag,          
+  faCircleCheck,
 )
 
 export function configureIcons(app: App<Element>) {

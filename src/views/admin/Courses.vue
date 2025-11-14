@@ -1,3 +1,4 @@
+<!-- src\views\admin\Courses.vue -->
 <template>
   <div class="space-y-8">
     <!-- Header Card -->
@@ -265,10 +266,12 @@
 import { ref, onMounted, nextTick, onUnmounted } from 'vue';
 import { AdminCourse, useAdminCoursesStore } from '@/stores/adminCourses';
 import { useAdminStore } from '@/stores/admin';
+import { useAuthStore } from '@/stores/auth';
 import { useToast } from 'vue-toastification';
 
 const adminCoursesStore = useAdminCoursesStore();
 const adminStore = useAdminStore();
+const authStore = useAuthStore();
 const toast = useToast();
 
 interface CourseForm {
@@ -318,23 +321,33 @@ let previewUrl = ref<string | null>(null);
 const videoSource = ref<'url' | 'upload'>('url');
 const currentVideoPath = ref<string | null>(null);
 
-const applyFilters = async () => {
+const getParams = () => {
   const params: any = {};
   if (searchQuery.value) params.search = searchQuery.value;
   if (filters.value.status !== 'all') params.status = filters.value.status;
   if (filters.value.dateFrom) params.date_from = filters.value.dateFrom;
   if (filters.value.dateTo) params.date_to = filters.value.dateTo;
+  if (authStore.isEmployee && authStore.user) {
+    params.creator_id = authStore.user.id;
+  }
+  return params;
+};
+
+const applyFilters = async () => {
+  const params = getParams();
   await adminCoursesStore.fetchCourses(1, params);
 };
 
-const resetFilters = () => {
+const resetFilters = async () => {
   searchQuery.value = '';
   filters.value = { status: 'all', dateFrom: '', dateTo: '' };
-  adminCoursesStore.fetchCourses(1);
+  const params = getParams();
+  await adminCoursesStore.fetchCourses(1, params);
 };
 
 const refreshCourses = async () => {
-  await adminCoursesStore.fetchCourses(adminCoursesStore.currentPage);
+  const params = getParams();
+  await adminCoursesStore.fetchCourses(adminCoursesStore.currentPage, params);
 };
 
 const resetForm = () => {
@@ -462,6 +475,7 @@ const handleDelete = async () => {
   } catch {
     toast.error('Failed to delete course');
   }
+  await refreshCourses();
 };
 
 onUnmounted(() => {
@@ -470,6 +484,7 @@ onUnmounted(() => {
 
 onMounted(async () => {
   await adminStore.fetchDashboard();
-  await adminCoursesStore.fetchCourses();
+  const initialParams = authStore.isEmployee && authStore.user ? { creator_id: authStore.user.id } : {};
+  await adminCoursesStore.fetchCourses(1, initialParams);
 });
 </script>
