@@ -218,14 +218,12 @@ import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { Course, useCourseStore } from '@/stores/course';
 import { useUserStore } from '@/stores/user';
-import { useAuthStore } from '@/stores/auth';
 import { useToast } from 'vue-toastification';
 import api from '@/services/api';
 
 const route = useRoute();
 const courseStore = useCourseStore();
 const userStore = useUserStore();
-const authStore = useAuthStore();
 const toast = useToast();
 
 const course = ref<Course | null>(null);

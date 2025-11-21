@@ -240,7 +240,7 @@ onMounted(() => userStore.fetchDashboard())
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL_STORAGE;
 
-export const resolveImage = (path: string) => {
+const resolveImage = (path: string) => {
   if (!path) return '';
   if (path.startsWith('http') || path.startsWith('//')) return path;
 

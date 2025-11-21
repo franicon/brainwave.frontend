@@ -68,7 +68,7 @@
         </form>
 
         <div class="mt-8 text-center space-y-3">
-          <p class="text-sm text-neutral-600 dark:text-neutral-400">
+          <!-- <p class="text-sm text-neutral-600 dark:text-neutral-400">
             Admin?
             <router-link
               to="/admin-login"
@@ -77,7 +77,7 @@
             >
               Admin Portal
             </router-link>
-          </p>
+          </p> -->
           <p class="text-sm text-neutral-600 dark:text-neutral-400">
             New here?
             <router-link
