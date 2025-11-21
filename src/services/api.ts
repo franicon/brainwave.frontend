@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { useAuthStore } from '@/stores/auth';
 
+const apiBaseURL = import.meta.env.VITE_API_BASE_URL;
 const apiClient = axios.create({
-  //baseURL: 'https://879e381a8b20.ngrok-free.app/api',
-  baseURL: 'http://localhost:8000/api',
+  baseURL: apiBaseURL,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -22,9 +22,7 @@ apiClient.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 apiClient.interceptors.response.use(

@@ -111,7 +111,7 @@
                 {{ activePlan.name }}
               </span>
               <p class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                Expires {{ formatDate(activePlan.end_date) }}
+                Expires {{ formatDate(activePlan.end_date || '') }}
               </p>
             </div>
             <router-link
@@ -238,13 +238,17 @@ import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 onMounted(() => userStore.fetchDashboard())
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL
-const resolveImage = (path: string) => {
-  if (!path) return ''
-  return path.startsWith('http') ? path : `${baseUrl}/${path.replace(/^\/+/, '')}`
-}
+const baseUrl = import.meta.env.VITE_API_BASE_URL_STORAGE;
 
-// Time
+export const resolveImage = (path: string) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('//')) return path;
+
+  return `${baseUrl.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+};
+
+
+
 const now = new Date()
 const currentMonth = now.toLocaleString('default', { month: 'long' })
 const currentTime = ref(now.toLocaleTimeString())
